@@ -32,21 +32,14 @@ function CanvasContainer() {
       gl={{
         localClippingEnabled: true,
         toneMapping: THREE.ACESFilmicToneMapping,
-        toneMappingExposure: 1.1,
-        outputEncoding: THREE.sRGBEncoding,
+        toneMappingExposure: 1.2,
+        outputColorSpace: THREE.SRGBColorSpace,
         antialias: true,
         powerPreference: "high-performance",
-        shadowMap: { 
-          enabled: true, 
-          type: THREE.PCFSoftShadowMap, 
-          autoUpdate: true, 
-          needsUpdate: true
-        },
       }}
       camera={{
-        // Updated to match the calculation in Controls.tsx
         position: [0, cabinetSize.totalHeight / 2 + cabinetSize.totalHeight * 0.8, cameraDistance],
-        fov: 40,
+        fov: 50, // Slightly reduced FOV for better perspective
         near: 0.1,
         far: 100,
       }}

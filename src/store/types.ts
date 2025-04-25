@@ -133,6 +133,8 @@ export interface ICabinetStore {
   setNormalMap: (normalMap: THREE.Texture | null) => void;
   isVerticalDragging: boolean;
   setVerticalDragging: (isVerticalDragging: boolean) => void;
+  shadowQuality: 'low' | 'medium' | 'high';
+  setShadowQuality: (quality: 'low' | 'medium' | 'high') => void;
 }
 
 export interface TGetCalculatedColumnsProps {

@@ -71,11 +71,8 @@ export const useCabinetTextures = () => {
   const colorMapFromState = useTexture(cabinetTextureURL);
   colorMapFromState.flipY = false;
   
-  if (THREE.SRGBColorSpace !== undefined) {
-    colorMapFromState.colorSpace = THREE.SRGBColorSpace;
-  } else if (THREE.sRGBEncoding !== undefined) {
-    colorMapFromState.encoding = THREE.sRGBEncoding;
-  }
+  // Use only the modern SRGBColorSpace property
+  colorMapFromState.colorSpace = THREE.SRGBColorSpace;
   
   colorMapFromState.anisotropy = anisotropyLevel;
   colorMapFromState.minFilter = THREE.LinearMipmapLinearFilter;

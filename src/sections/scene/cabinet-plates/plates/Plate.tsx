@@ -39,7 +39,12 @@ export const Plate = React.memo(function Plate({ position, scale, plateInfo }: {
 
   return (
     <Suspense fallback={null}>
-      <mesh castShadow receiveShadow position={[position.x, position.y, position.z]} rotation={rotation}>
+      <mesh 
+        castShadow 
+        receiveShadow 
+        position={[position.x, position.y, position.z]} 
+        rotation={rotation}
+      >
         <boxGeometry args={[scale.width, PLATE_THICKNESS, scale.depth]} />
         <PlateMaterial isVisible={isVisible} occlusion={occlusion} />
       </mesh>

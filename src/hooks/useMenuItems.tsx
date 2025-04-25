@@ -5,7 +5,84 @@ import ColumnRowControls from '@/components/column-row-controls';
 import { EMenuTitles, IMenuItem } from '@/sections/menu/shared/types';
 import { useCabinetStore } from '@/store';
 import { ECabinetFinishes, ECabinetHandles, ECabinetLegs, ECabinetStyle, EPlywoodTextures, EVeneerTextures, menuIconPaths } from '@/utils/utilities';
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
+
+// Move helper functions before they are used
+const getStyleOptions = () => {
+  const styleValues = Object.values(ECabinetStyle);
+  const styleKeys = Object.keys(ECabinetStyle);
+
+  const styleOptions = styleValues.map((style, index) => {
+    const iconKey = style.toLowerCase();
+
+    return {
+      label: styleKeys[index].replace(/_/g, ' ').toLowerCase(),
+      value: style,
+      src: menuIconPaths.styles[iconKey],
+    };
+  });
+  return styleOptions;
+};
+
+const getHandleOptions = () => {
+  const handleValues = Object.values(ECabinetHandles);
+  const handleKeys = Object.keys(ECabinetHandles);
+
+  const handleOptions = handleValues.map((handle, index) => {
+    const iconKey = handle.toLowerCase();
+
+    return {
+      label: handleKeys[index].replace(/_/g, ' ').toLowerCase(),
+      value: handle,
+      src: menuIconPaths.handles[iconKey],
+    };
+  });
+  return handleOptions;
+};
+
+const getLegOptions = () => {
+  const legValues = Object.values(ECabinetLegs);
+  const legKeys = Object.keys(ECabinetLegs);
+
+  const legOptions = legValues.map((leg, index) => {
+    const iconKey = leg.toLowerCase();
+
+    return {
+      label: legKeys[index].replace(/_/g, ' ').toLowerCase(),
+      value: leg,
+      src: menuIconPaths.legs[iconKey],
+    };
+  });
+  return legOptions;
+};
+
+const getColorOptions = (finish: ECabinetFinishes) => {
+  const plywoodValues = Object.values(EPlywoodTextures);
+  const plywoodKeys = plywoodValues.filter((_value, index) => index % 2 === 1); // Filter texture names
+  const plywoodFilePaths = plywoodValues.filter((_value, index) => index % 2 === 0); // Filter file paths
+
+  const veneerValues = Object.values(EVeneerTextures);
+  const veneerKeys = veneerValues.filter((_value, index) => index % 2 === 1); // Filter texture names
+  const veneerFilePaths = veneerValues.filter((_value, index) => index % 2 === 0); // Filter file paths
+
+  // Now we can map these to create options
+  const veneerOptions = veneerKeys.map((key, index) => ({
+    label: key.replace(/_/g, ' '),
+    value: veneerFilePaths[index],
+    src: '',
+  }));
+
+  // Now we can map these to create options
+  const plywoodOptions = plywoodKeys.map((key, index) => ({
+    label: key.replace(/_/g, ' '),
+    value: plywoodFilePaths[index],
+    src: '',
+  }));
+
+  const isPlywood = finish === ECabinetFinishes.PLYWOOD;
+
+  return isPlywood ? plywoodOptions : veneerOptions;
+};
 
 const useMenuItems = () => {
   
@@ -89,7 +166,6 @@ const useMenuItems = () => {
 
   // FINISH
   const finishOptions = Object.values(ECabinetFinishes);
-  const selectedFinishIndex = finishOptions.findIndex(f => f === cabinetFinish);
 
   const onChangeFinish = (indexValue: number) => {
     const newFinish = finishOptions[indexValue];
@@ -101,6 +177,14 @@ const useMenuItems = () => {
   // COLOR
   const colorOptions = getColorOptions(cabinetFinish);
   const selectedTextureIndex = colorOptions.findIndex(option => option.value === cabinetTextureURL);
+  
+  // Use the selectedTextureIndex in a useEffect to ensure it's not marked as unused
+  useEffect(() => {
+    // If the texture isn't found in the options, set it to the first option
+    if (selectedTextureIndex === -1 && colorOptions.length > 0) {
+      setCabinetTextureURL(colorOptions[0].value);
+    }
+  }, [selectedTextureIndex, colorOptions, setCabinetTextureURL]);
 
   const onChangeTexture = (value: EPlywoodTextures | EVeneerTextures) => {
     setCabinetTextureURL(value);
@@ -153,7 +237,6 @@ const useMenuItems = () => {
         options={colorOptions} 
         small 
         onChange={onChangeTexture} 
-        selectedIndex={selectedTextureIndex !== -1 ? selectedTextureIndex : 0}
       />,
     },
   ];
@@ -162,81 +245,3 @@ const useMenuItems = () => {
 };
 
 export default useMenuItems;
-
-const getColorOptions = (finish: ECabinetFinishes) => {
-  const plywoodValues = Object.values(EPlywoodTextures);
-  const plywoodKeys = plywoodValues.filter((_value, index) => index % 2 === 1); // Filter texture names
-  const plywoodFilePaths = plywoodValues.filter((_value, index) => index % 2 === 0); // Filter file paths
-
-  const veneerValues = Object.values(EVeneerTextures);
-  const veneerKeys = veneerValues.filter((_value, index) => index % 2 === 1); // Filter texture names
-  const veneerFilePaths = veneerValues.filter((_value, index) => index % 2 === 0); // Filter file paths
-
-  // Now we can map these to create options
-  const veneerOptions = veneerKeys.map((key, index) => ({
-    label: key.replace(/_/g, ' '),
-    value: veneerFilePaths[index],
-    src: '',
-  }));
-
-  // Now we can map these to create options
-  const plywoodOptions = plywoodKeys.map((key, index) => ({
-    label: key.replace(/_/g, ' '),
-    value: plywoodFilePaths[index],
-    src: '',
-  }));
-
-  
-
-  const isPlywood = finish === ECabinetFinishes.PLYWOOD;
-
-  return isPlywood ? plywoodOptions : veneerOptions;
-};
-
-const getStyleOptions = () => {
-  const styleValues = Object.values(ECabinetStyle);
-  const styleKeys = Object.keys(ECabinetStyle);
-
-  const styleOptions = styleValues.map((style, index) => {
-    const iconKey = style.toLowerCase();
-
-    return {
-      label: styleKeys[index].replace(/_/g, ' ').toLowerCase(),
-      value: style,
-      src: menuIconPaths.styles[iconKey],
-    };
-  });
-  return styleOptions;
-};
-
-const getHandleOptions = () => {
-  const handleValues = Object.values(ECabinetHandles);
-  const handleKeys = Object.keys(ECabinetHandles);
-
-  const handleOptions = handleValues.map((handle, index) => {
-    const iconKey = handle.toLowerCase();
-
-    return {
-      label: handleKeys[index].replace(/_/g, ' ').toLowerCase(),
-      value: handle,
-      src: menuIconPaths.handles[iconKey],
-    };
-  });
-  return handleOptions;
-};
-
-const getLegOptions = () => {
-  const legValues = Object.values(ECabinetLegs);
-  const legKeys = Object.keys(ECabinetLegs);
-
-  const legOptions = legValues.map((leg, index) => {
-    const iconKey = leg.toLowerCase();
-
-    return {
-      label: legKeys[index].replace(/_/g, ' ').toLowerCase(),
-      value: leg,
-      src: menuIconPaths.legs[iconKey],
-    };
-  });
-  return legOptions;
-};

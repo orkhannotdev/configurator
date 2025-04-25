@@ -157,7 +157,7 @@ const ColumnRowControls = () => {
       
       // Rather than using random layouts, manually update doors or drawers based on row count
       // while maintaining the existing layout style (door vs drawer)
-      const lastRow = newCabinetColumns[i].lastRow;
+      const lastRow = newCabinetColumns[i].lastRow || 'door';
       
       if (lastRow === 'door') {
         // Update door to match the new height

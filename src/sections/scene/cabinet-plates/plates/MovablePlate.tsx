@@ -1,34 +1,31 @@
 import { useCabinetStore } from '@/store';
 import { IPlateInformation } from '@/store/types';
-import { getLayoutOptionsOfColumn } from '@/utils/columnLayoutOptions';
-import { CELL_SIZE, PLATE_THICKNESS, getBottomHeight, getIndividualColumn } from '@/utils/utilities';
+import { PLATE_THICKNESS, getBottomHeight, getIndividualColumn } from '@/utils/utilities';
 import { useTexture } from '@react-three/drei';
 import { ThreeEvent } from '@react-three/fiber';
 import { UserDragConfig, useDrag } from '@use-gesture/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
-import { DRAGGER_THRESHOLD, PLANE_INTERSECT_POINT, PLANE_VECTOR, getPositionOnXAxis } from './plate-helpers';
+import { PLANE_INTERSECT_POINT, PLANE_VECTOR } from './plate-helpers';
 
 let INITIAL_MOUSE_POSITION_FOR_DRAGGER: THREE.Vector3 | null = null; // Store the initial position
 
 export const MovablePlate = React.memo(function MovablePlate({ position, plateInfo }: { position: THREE.Vector3; plateInfo: IPlateInformation }) {
   const delta = 0.01;
 
-  const { horizontal, middle, columnIndex } = plateInfo;
+  const { horizontal, middle, columnIndex } = plateInfo as { horizontal: boolean; middle: boolean; columnIndex: number };
 
   const { 
     setIsDragging, 
-    isDragging,
     selectedColumnIndex, 
     cabinetSize, 
     cabinetLegs, 
     cabinetColumns, 
     setCabinetColumns,
     setVerticalDragging,
-    isVerticalDragging
   } = useCabinetStore();
 
-  const { totalWidth, totalDepth, totalHeight } = cabinetSize;
+  const { totalWidth, totalDepth } = cabinetSize;
 
   const legHeight = getBottomHeight(cabinetLegs);
 
@@ -43,10 +40,9 @@ export const MovablePlate = React.memo(function MovablePlate({ position, plateIn
   const initialWidthsRef = useRef<{left: number, right: number} | null>(null);
 
   const onResetPos = useCallback(() => {
-    if (setIsDragging) {
+    if (setIsDragging && typeof columnIndex === 'number') {
       const current = [...cabinetColumns];
       
-      // Add validation to ensure targetIndex is valid and columns exist
       if (!current || !current.length || columnIndex < 0 || columnIndex >= current.length - 1) {
         setIsDragging(false);
         return;

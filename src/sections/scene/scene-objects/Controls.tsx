@@ -16,7 +16,7 @@ export function Controls() {
   const [userControlling, setUserControlling] = useState(false);
 
   // Create a reference to the controls
-  const controlsRef = useRef(null);
+  const controlsRef = useRef<any>(null);  // Use any temporarily, or create a proper type
 
   // Get the camera from the three.js context
   const { camera, gl } = useThree();
@@ -120,7 +120,7 @@ export function Controls() {
   useEffect(() => {
     const canvas = gl.domElement;
     
-    const handleWheel = (e) => {
+    const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       e.stopPropagation();
     };

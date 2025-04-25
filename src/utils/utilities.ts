@@ -1,4 +1,4 @@
-import { ICabinetSize, IColumn, IColumnLastRow, IPartition } from '@/store/types';
+import { ICabinetSize, IColumn, IPartition } from '@/store/types';
 import * as THREE from 'three';
 import { Vector3 } from 'three';
 import { getLayoutOptionsOfColumn } from './columnLayoutOptions';
@@ -177,6 +177,8 @@ export enum ECabinetStyle {
   FRAME = 'frame',
   SLANT = 'slant',
   PIXEL = 'pixel',
+  MODERN = 'modern',
+  CLASSIC = 'classic',
 }
 
 export enum ECabinetLegs {
@@ -418,18 +420,18 @@ type TGetCalculatedColumnsProps = {
   cabinetSize: ICabinetSize;
   cabinetStyle: ECabinetStyle;
   legHeight: number;
-  columnCount?: number; // Make it optional
+  columnCount?: number;
 };
 
 // Fix the function signature
 export const getCalculatedColumns = ({
-  current,
+  current: _current,
   cabinetSize,
   cabinetStyle,
   legHeight,
   columnCount,
 }: TGetCalculatedColumnsProps): IColumn[] => {
-  const { totalWidth, totalHeight, totalDepth } = cabinetSize;
+  const { totalWidth, totalHeight } = cabinetSize;
   
   // Calculate available width (total width minus side plates)
   const availableWidth = totalWidth - 2 * PLATE_THICKNESS;
@@ -563,7 +565,7 @@ export const createColumnWithLayout = (columnWidth: number, posX: number, totalH
   
   // Based on cabinet style, choose an appropriate layout
   switch (cabinetStyle) {
-    case ECabinetStyle.Modern:
+    case ECabinetStyle.MODERN:
       // For modern style, use all drawers
       layoutIndex = 1;
       // Create a drawer for each row
@@ -580,7 +582,7 @@ export const createColumnWithLayout = (columnWidth: number, posX: number, totalH
       }));
       break;
       
-    case ECabinetStyle.Classic:
+    case ECabinetStyle.CLASSIC:
     default:
       // For classic style, use doors for all rows
       layoutIndex = 0;
@@ -602,7 +604,8 @@ export const createColumnWithLayout = (columnWidth: number, posX: number, totalH
   
   // Create and return the column object
   return {
-    index: 0, // Will be updated when all columns are created
+    id: Math.random().toString(36).substr(2, 9),
+    index: 0,
     width: columnWidth,
     posX: posX,
     rows: rows,

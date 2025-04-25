@@ -17,156 +17,43 @@ const applyGradientStyle = (
   columns: IColumn[], 
   cabinetSize: ICabinetSize, 
   cabinetLegs: ECabinetLegs
-) => {
-  const { totalWidth, totalHeight } = cabinetSize;
+): IColumn[] => {
   const legHeight = getBottomHeight(cabinetLegs);
-  const cabinetHeight = totalHeight - legHeight - 2 * PLATE_THICKNESS;
-  const startPosY = legHeight + PLATE_THICKNESS;
+  const { totalHeight } = cabinetSize;
   
   // Create a copy of columns to modify
   const gradientColumns = [...columns];
   
-  // Min and max width constraints
-  const minWidth = 0.2;
-  const maxWidth = 1.0;
-  
-  // Total available width to distribute
-  const totalAvailableWidth = totalWidth;
-  
-  // Number of columns
-  const columnCount = gradientColumns.length;
-  
-  // Generate varied widths for gradient effect
-  // We'll create a gradient from narrower to wider columns
-  let remainingWidth = totalAvailableWidth;
-  
-  for (let i = 0; i < columnCount; i++) {
-    // Calculate a width that gradually increases
-    // First columns narrower, last columns wider
-    const gradientFactor = 0.7 + (i / (columnCount - 1)) * 0.6; // Range from 0.7 to 1.3
-    
-    // Base width if all columns were equal
-    const baseWidth = totalAvailableWidth / columnCount;
-    
-    // Apply gradient factor to create variation
-    let columnWidth = baseWidth * gradientFactor;
-    
-    // Ensure width is within constraints
-    columnWidth = Math.max(minWidth, Math.min(maxWidth, columnWidth));
-    
-    // Adjust for last column to ensure total width is maintained
-    if (i === columnCount - 1) {
-      columnWidth = remainingWidth;
-    }
-    
-    // Update column width
-    gradientColumns[i].width = columnWidth;
-    
-    // Reduce remaining width
-    remainingWidth -= columnWidth;
-  }
-  
-  // Recalculate positions based on new widths
-  let currentX = -totalWidth / 2;
-  
-  for (let i = 0; i < columnCount; i++) {
-    const column = gradientColumns[i];
-    const halfWidth = column.width / 2;
-    
-    // Update column position
-    column.posX = currentX + halfWidth;
-    
-    // Apply varied layouts based on position in the gradient
-    // This creates a pattern of different layouts across columns
-    
-    // Clear existing layouts
+  gradientColumns.forEach((column) => {
+    column.lastRow = 'drawer';
     column.doors = [];
-    column.drawers = [];
-    column.dividers = [];
-    column.isDivide = false;
     
-    // Determine layout type based on position in gradient
-    // 0: open cell, 1: door, 2: drawer, 3: divided with drawer
-    const layoutType = i % 4;
+    // Calculate available height for drawers
+    const availableHeight = totalHeight - legHeight - (column.rows.length + 1) * PLATE_THICKNESS;
+    const baseDrawerHeight = availableHeight / column.rows.length;
     
-    switch (layoutType) {
-      case 0: // Open cell
-        // Nothing to add - just an empty column
-        column.lastRow = 'open';
-        break;
-        
-      case 1: // Full door
-        column.doors = [{
-          index: 0,
-          size: {
-            width: column.width,
-            height: cabinetHeight,
-          },
-          pos: {
-            x: column.posX,
-            y: startPosY + cabinetHeight / 2,
-          },
-          opening: 1, // Default opening direction
-        }];
-        column.lastRow = 'door';
-        break;
-        
-      case 2: // Full drawer
-        column.drawers = [{
-          index: 0,
-          size: {
-            width: column.width,
-            height: cabinetHeight,
-          },
-          pos: {
-            x: column.posX,
-            y: startPosY + cabinetHeight / 2,
-          },
-        }];
-        column.lastRow = 'drawer';
-        break;
-        
-      case 3: // Divided with drawer on bottom
-        column.isDivide = true;
-        
-        // Create a divider at 1/3 height
-        const dividerHeight = cabinetHeight / 3;
-        column.rows = [
-          { height: dividerHeight },
-          { height: cabinetHeight - dividerHeight }
-        ];
-        
-        // Add divider
-        column.dividers = [{
-          size: {
-            width: column.rows[0].height,
-            depth: cabinetSize.totalDepth - 2 * PLATE_THICKNESS,
-          },
-          pos: {
-            x: column.posX,
-            y: startPosY + column.rows[0].height / 2,
-          },
-        }];
-        
-        // Add drawer in bottom section
-        column.drawers = [{
-          index: 0,
-          size: {
-            width: column.width,
-            height: cabinetHeight - dividerHeight,
-          },
-          pos: {
-            x: column.posX,
-            y: startPosY + dividerHeight + (cabinetHeight - dividerHeight) / 2,
-          },
-        }];
-        column.lastRow = 'drawer';
-        break;
-    }
+    const startPosY = legHeight + PLATE_THICKNESS;
     
-    // Move to next column position
-    currentX += column.width;
-  }
+    // Create gradient drawers using the available height
+    const drawers = column.rows.map((_, index) => {
+      const gradientFactor = 1 + (index / column.rows.length) * 0.5;
+      const height = baseDrawerHeight * gradientFactor;
+      
+      return {
+        index,
+        size: {
+          width: column.width,
+          height,
+        },
+        pos: {
+          x: column.posX,
+          y: startPosY + (index + 0.5) * height + index * PLATE_THICKNESS,
+        },
+      };
+    });
+    
+    column.drawers = drawers;
+  });
   
   return gradientColumns;
 };
@@ -178,7 +65,6 @@ export const InteriorPlates = React.memo(function InteriorPlates() {
     cabinetColumns,
     cabinetStyle,
     setCabinetColumns,
-    selectedStyle,
   } = useCabinetStore();
   
   // Reference to track initial load
@@ -265,12 +151,12 @@ export const InteriorPlates = React.memo(function InteriorPlates() {
 
   // Apply style changes when style is selected
   useEffect(() => {
-    if (selectedStyle === 'gradient') {
+    if (cabinetStyle === 'gradient') {
       // Apply gradient style to columns
       const gradientColumns = applyGradientStyle(cabinetColumns, cabinetSize, cabinetLegs);
       setCabinetColumns(gradientColumns);
     }
-  }, [selectedStyle, cabinetColumns.length, cabinetSize, cabinetLegs, setCabinetColumns]);
+  }, [cabinetStyle, cabinetColumns.length, cabinetSize, cabinetLegs, setCabinetColumns]);
   
   // Existing useEffect for cabinet size changes
   useEffect(() => {
@@ -281,7 +167,7 @@ export const InteriorPlates = React.memo(function InteriorPlates() {
       const newColumns = getColumns(current, cabinetSize, cabinetStyle, cabinetLegs);
       
       // If gradient style is selected, reapply it after size changes
-      if (selectedStyle === 'gradient') {
+      if (cabinetStyle === 'gradient') {
         const gradientColumns = applyGradientStyle(newColumns, cabinetSize, cabinetLegs);
         setCabinetColumns(gradientColumns);
         prevColumnCountRef.current = gradientColumns.length;
@@ -317,7 +203,7 @@ export const InteriorPlates = React.memo(function InteriorPlates() {
         prevColumnCountRef.current = newColumns.length;
       }
     }
-  }, [cabinetSize, cabinetLegs, selectedStyle]);
+  }, [cabinetSize, cabinetLegs, cabinetStyle]);
 
   return (
     <group dispose={null}>

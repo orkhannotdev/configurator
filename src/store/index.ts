@@ -1,8 +1,9 @@
 import { ECabinetFinishes, ECabinetHandles, ECabinetLegs, ECabinetStyle, EPlywoodTextures, EVeneerTextures } from '@/utils/utilities';
 import { create } from 'zustand';
-import { ICabinetStore } from './types';
+import { ICabinetStore, IColumn } from './types';
 
 export const useCabinetStore = create<ICabinetStore>()((set) => ({
+  selectedStyle: '',
   cabinetStyle: ECabinetStyle.MODERN,
   setCabinetStyle: (cabinetStyle) => {
     set({ cabinetStyle });

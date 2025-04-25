@@ -7,8 +7,6 @@ import * as THREE from 'three';
 export const useCabinetTextures = () => {
   const { cabinetFinish, cabinetTextureURL, setRoughnessMap, setAoMap, setNormalMap, setColorMap } = useCabinetStore();
 
-  const isPlywood = cabinetFinish === ECabinetFinishes.PLYWOOD;
-
   // Performance optimization: Use lower anisotropy (8 is a good balance)
   const anisotropyLevel = 8;
 

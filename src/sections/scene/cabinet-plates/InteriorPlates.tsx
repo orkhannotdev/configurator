@@ -205,6 +205,53 @@ export const InteriorPlates = React.memo(function InteriorPlates() {
     }
   }, [cabinetSize, cabinetLegs, cabinetStyle]);
 
+  // Add this effect to set maximum columns and shelves on initial load
+  useEffect(() => {
+    if (isInitialLoadRef.current) {
+      // Set maximum columns (9) and maximum shelves (6) on initial load
+      const legHeight = getBottomHeight(cabinetLegs);
+      
+      // Generate columns with maximum count (9)
+      const maxColumns = getCalculatedColumns({
+        current: [],
+        cabinetStyle,
+        cabinetSize,
+        legHeight,
+        columnCount: 9 // Set to maximum 9 columns
+      });
+      
+      // For each column, ensure it has maximum shelves (6)
+      const columnsWithMaxShelves = maxColumns.map(column => {
+        // Calculate cabinet height (excluding legs and plate thickness)
+        const cabinetHeight = cabinetSize.totalHeight - legHeight - 2 * PLATE_THICKNESS;
+        
+        // Generate 6 rows (maximum shelves)
+        const newRows = [];
+        for (let i = 0; i < 6; i++) {
+          newRows.push({
+            index: i,
+            height: cabinetHeight / 6 - (PLATE_THICKNESS * 5 / 6) // Account for plate thickness
+          });
+        }
+        
+        return {
+          ...column,
+          rows: newRows,
+          lastRow: column.lastRow || 'door'
+        };
+      });
+      
+      // Apply random layouts to the columns with max shelves
+      const randomizedColumns = applyRandomLayoutsToColumns(
+        columnsWithMaxShelves, 
+        cabinetSize.totalHeight, 
+        legHeight
+      );
+      
+      setCabinetColumns(randomizedColumns);
+    }
+  }, []);
+
   return (
     <group dispose={null}>
       {verticals.slice(1, verticals.length - 1).map((e, index) => (

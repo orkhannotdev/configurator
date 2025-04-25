@@ -98,6 +98,16 @@ const ColumnRowControls = () => {
     }
   }, [cabinetColumns]);
   
+  // Add this effect to ensure maximum rows (shelves) on initial load
+  useEffect(() => {
+    // Only run on initial load when columns are first created
+    if (cabinetColumns.length > 0 && currentRows < 6) {
+      // Set to maximum 6 rows (shelves)
+      setCurrentRows(6);
+      updateRowCount(6);
+    }
+  }, [cabinetColumns.length]);
+  
   // Function to update column count
   const updateColumnCount = (count: number) => {
     const legHeight = getBottomHeight(cabinetLegs);

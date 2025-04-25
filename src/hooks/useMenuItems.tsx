@@ -100,15 +100,21 @@ const useMenuItems = () => {
     setHoveredColumnIndex 
   } = useCabinetStore();
 
-  // Force UI update for initial state
+  // Add this effect to ensure default values are properly selected in UI
   useEffect(() => {
-    // This forces the UI to reflect the veneer option on first load
-    if (cabinetFinish === ECabinetFinishes.VENEER) {
-      // Re-apply the setting to trigger UI update
-      setTimeout(() => {
+    // This forces the UI to reflect the default options on first load
+    setTimeout(() => {
+      // Ensure No Leg is selected
+      setCabinetLegs(ECabinetLegs.NO_LEG);
+      
+      // Ensure Handle B is selected
+      setCabinetHandle(ECabinetHandles.HANDLE_B);
+      
+      // Force veneer option (already in your code)
+      if (cabinetFinish === ECabinetFinishes.VENEER) {
         setCabinetFinish(ECabinetFinishes.VENEER);
-      }, 0);
-    }
+      }
+    }, 0);
   }, []);
 
   const resetSelectionIndexes = () => {
@@ -197,15 +203,15 @@ const useMenuItems = () => {
     },
     {
       title: EMenuTitles.WIDTH,
-      component: <Slider min={30} max={250} onChange={onChangeWidth} defaultValue={200} />,
+      component: <Slider min={30} max={250} onChange={onChangeWidth} defaultValue={250} />,
     },
     {
       title: EMenuTitles.HEIGHT,
-      component: <Slider min={43} max={108} onChange={onChangeHeight} defaultValue={88} />,
+      component: <Slider min={43} max={108} onChange={onChangeHeight} defaultValue={108} />,
     },
     {
       title: EMenuTitles.DEPTH,
-      component: <Slider min={24} max={48} onChange={onChangeDepth} defaultValue={34} />,
+      component: <Slider min={24} max={48} onChange={onChangeDepth} defaultValue={48} />,
     },
     {
       title: EMenuTitles.CABINET_LAYOUT,

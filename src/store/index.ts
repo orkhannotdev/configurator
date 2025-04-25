@@ -9,12 +9,12 @@ export const useCabinetStore = create<ICabinetStore>()((set) => ({
     set({ cabinetStyle });
   },
 
-  cabinetSize: { totalWidth: 2.0, totalHeight: 0.8, totalDepth: 0.34 },
+  cabinetSize: { totalWidth: 2.5, totalHeight: 1.08, totalDepth: 0.48 },
   setCabinetSize: (cabinetSize) => {
     set({ cabinetSize });
   },
 
-  cabinetHandle: ECabinetHandles.HANDLE_A,
+  cabinetHandle: ECabinetHandles.HANDLE_B,
   setCabinetHandle: (cabinetHandle) => {
     set({ cabinetHandle });
   },
@@ -24,7 +24,7 @@ export const useCabinetStore = create<ICabinetStore>()((set) => ({
     set({ cabinetFinish });
   },
 
-  cabinetLegs: ECabinetLegs.LEGS,
+  cabinetLegs: ECabinetLegs.NO_LEG,
   setCabinetLegs: (cabinetLegs) => {
     set({ cabinetLegs });
   },

@@ -412,12 +412,22 @@ export function getPartitonPlates({ columns, totalHeight, totalWidth, totalDepth
   };
 }
 
-export const getCalculatedColumns = ({ 
-  current, 
-  cabinetStyle, 
-  cabinetSize, 
-  legHeight, 
-  columnCount 
+// Update the type definition to include columnCount
+type TGetCalculatedColumnsProps = {
+  current: IColumn[];
+  cabinetSize: ICabinetSize;
+  cabinetStyle: ECabinetStyle;
+  legHeight: number;
+  columnCount?: number; // Make it optional
+};
+
+// Fix the function signature
+export const getCalculatedColumns = ({
+  current,
+  cabinetSize,
+  cabinetStyle,
+  legHeight,
+  columnCount,
 }: TGetCalculatedColumnsProps): IColumn[] => {
   const { totalWidth, totalHeight, totalDepth } = cabinetSize;
   
@@ -453,7 +463,7 @@ export const getCalculatedColumns = ({
   }
   
   return columns;
-}
+};
 
 export function getRemainingColumns(remainingWidth: number) {
   const b = remainingWidth % 2 === 0 ? remainingWidth / 2 : (remainingWidth + 1) / 2;

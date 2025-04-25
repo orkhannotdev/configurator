@@ -13,7 +13,11 @@ import { VerticalDivider } from './plates/VerticalDivider';
 import { VerticalPlate } from './plates/VerticalPlate';
 
 // Function to apply gradient style to columns
-const applyGradientStyle = (columns, cabinetSize, cabinetLegs) => {
+const applyGradientStyle = (
+  columns: IColumn[], 
+  cabinetSize: ICabinetSize, 
+  cabinetLegs: ECabinetLegs
+) => {
   const { totalWidth, totalHeight } = cabinetSize;
   const legHeight = getBottomHeight(cabinetLegs);
   const cabinetHeight = totalHeight - legHeight - 2 * PLATE_THICKNESS;
@@ -199,7 +203,7 @@ export const InteriorPlates = React.memo(function InteriorPlates() {
   useEffect(() => {
     // Only run this effect on initial load or when style changes
     if (isInitialLoadRef.current || prevStyleRef.current !== cabinetStyle) {
-      let current = [];
+      let current: IColumn[] = [];
       
       // If we have existing columns and only the style changed, preserve column structure
       if (cabinetColumns.length > 0 && !isInitialLoadRef.current) {

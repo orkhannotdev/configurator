@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { ICabinetStore } from './types';
 
 export const useCabinetStore = create<ICabinetStore>()((set) => ({
-  cabinetStyle: ECabinetStyle.Modern,
+  cabinetStyle: ECabinetStyle.MODERN,
   setCabinetStyle: (cabinetStyle) => {
     set({ cabinetStyle });
   },
@@ -108,4 +108,7 @@ export const useCabinetStore = create<ICabinetStore>()((set) => ({
   setVerticalDragging: (isVerticalDragging) => {
     set({ isVerticalDragging });
   },
+
+  shadowQuality: 'medium',
+  setShadowQuality: (quality: 'low' | 'medium' | 'high') => set({ shadowQuality: quality }),
 }));

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useCabinetStore } from '@/store';
-import { CELL_SIZE, PLATE_THICKNESS, getBottomHeight, getCalculatedColumns, getColumnVerticalLayout, applyRandomLayoutsToColumns } from '@/utils/utilities';
+import { CELL_SIZE, PLATE_THICKNESS, getBottomHeight, getCalculatedColumns, applyRandomLayoutsToColumns } from '@/utils/utilities';
 import styles from './styles.module.css';
 
 const ColumnRowControls = () => {

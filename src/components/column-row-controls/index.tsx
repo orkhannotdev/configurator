@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useCabinetStore } from '@/store';
-import { CELL_SIZE, PLATE_THICKNESS, getBottomHeight, getCalculatedColumns, applyRandomLayoutsToColumns } from '@/utils/utilities';
+import { CELL_SIZE, PLATE_THICKNESS, getBottomHeight, getCalculatedColumns, getColumnVerticalLayout, applyRandomLayoutsToColumns } from '@/utils/utilities';
 import styles from './styles.module.css';
 
 const ColumnRowControls = () => {
@@ -99,7 +99,7 @@ const ColumnRowControls = () => {
   }, [cabinetColumns]);
   
   // Function to update column count
-  const updateColumnCount = (count) => {
+  const updateColumnCount = (count: number) => {
     const legHeight = getBottomHeight(cabinetLegs);
     
     // Use getCalculatedColumns to generate the array of columns
@@ -120,7 +120,7 @@ const ColumnRowControls = () => {
   };
   
   // Function to update row count for all columns
-  const updateRowCount = (count) => {
+  const updateRowCount = (count: number) => {
     const newCabinetColumns = [...cabinetColumns];
     
     // Get the cabinet height (excluding legs and plate thickness)
@@ -198,7 +198,7 @@ const ColumnRowControls = () => {
   };
   
   // Adjust column count
-  const adjustColumns = (delta) => {
+  const adjustColumns = (delta: number) => {
     const newCount = currentColumns + delta;
     if (newCount >= minColumns && newCount <= maxColumns) {
       setCurrentColumns(newCount);
@@ -207,7 +207,7 @@ const ColumnRowControls = () => {
   };
   
   // Adjust row count
-  const adjustRows = (delta) => {
+  const adjustRows = (delta: number) => {
     const newCount = currentRows + delta;
     if (newCount >= minRows && newCount <= maxRows) {
       setCurrentRows(newCount);

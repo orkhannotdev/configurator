@@ -1,4 +1,4 @@
-import { RangeInput } from '../common/range-input';
+import { RangeInput } from '@/components/range-input';
 import { CABINET_SIZE_CONSTRAINTS } from '../../utils/utilities';
 
 // Inside the size controls component

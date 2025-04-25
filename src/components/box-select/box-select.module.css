@@ -1,0 +1,123 @@
+.body {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.boxItem {
+  width: 66px;
+  min-width: 66px;
+  height: 60px;
+  color: var(--text-color);
+  border: 0.5px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 4px;
+  cursor: pointer;
+}
+
+.boxItem:hover {
+  background-color: var(--highlighted-background-light);
+  border: 1px solid var(--highlighted-border-color);
+  color: var(--highlighted-color);
+  box-shadow: 0px 4px 2px rgba(0, 0, 0, 0.05);
+}
+
+.boxItem.active {
+  background-color: var(--highlighted-background);
+  border: 1px solid var(--highlighted-border-color);
+  color: var(--highlighted-color);
+}
+
+.boxItem.active > .willBeReplacedWithOptionIcons {
+  background-color: var(--highlighted-color);
+}
+
+.boxItem > * {
+  transition: all ease-in-out 0.3s;
+}
+
+.boxItem:hover .willBeReplacedWithOptionIcons {
+  background-color: var(--highlighted-color);
+}
+
+.willBeReplacedWithOptionIcons {
+  width: 24px;
+  height: 24px;
+  background-color: var(--highlighted-background);
+  border-radius: 4px;
+}
+
+.boxItemTitle {
+  font-size: 13px;
+  line-height: 13px;
+  text-align: left;
+  text-transform: capitalize;
+}
+
+.boxItemSmall {
+  height: 28px;
+  width: 28px;
+  min-width: 28px;
+  border: 0.5px solid var(--input-border-color);
+  cursor: pointer;
+  position: relative;
+}
+
+.boxItemSmall.active {
+  border: 2px solid var(--error-color);
+}
+
+.popup {
+  position: absolute;
+  align-self: center;
+  width: 187px;
+  height: 183px;
+  bottom: 36px; /* Adjust this for a 4px gap above the .boxItemSmall */
+  left: -77px;
+  padding: 10px 0px 0px 0px;
+  gap: 8px;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 100;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
+}
+
+.boxItemSmall:hover > .popup {
+  visibility: visible;
+  opacity: 1;
+}
+
+.popupImage {
+  width: 167px;
+  height: 139px;
+  border: 0.5px solid #d1dbe3;
+}
+
+.popupLabel {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 16.1px;
+  color: #4a545b;
+  text-align: center;
+  padding: 0px 4px;
+}
+
+@media (max-width: 1024px) {
+  .body {
+    flex-wrap: wrap;
+  }
+}

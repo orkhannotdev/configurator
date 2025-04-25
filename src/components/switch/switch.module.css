@@ -1,0 +1,36 @@
+.switchContainer {
+  display: flex;
+  position: relative;
+  width: 200px; /* Adjust width based on need */
+  background-color: var(--highlighted-background-light);
+  border-radius: 8px;
+  padding: 4px; /* Add padding */
+  overflow: hidden;
+}
+
+.selectionBackground {
+  position: absolute;
+  width: calc(50% - 4px); /* Account for padding */
+  height: calc(100% - 8px); /* Account for padding on top and bottom */
+  background-color: var(--highlighted-background); /* Add transparency */
+  border: 1px solid var(--highlighted-border-color);
+  border-radius: 6px; /* Inner border radius to match padding */
+  transition: left 0.3s ease;
+  pointer-events: none;
+}
+
+.option {
+  flex: 1;
+  padding: 10px 0;
+  text-align: center;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-color);
+  font-weight: 400;
+  position: relative;
+  z-index: 1; /* Ensures it stays above the background */
+}
+
+.option.selected {
+  color: #3764a2;
+}

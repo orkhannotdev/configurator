@@ -1,0 +1,2 @@
+*.ext filter=lfs diff=lfs merge=lfs -text
+*.png,[[:space:]]*.glb,[[:space:]]*.jpg filter=lfs diff=lfs merge=lfs -text

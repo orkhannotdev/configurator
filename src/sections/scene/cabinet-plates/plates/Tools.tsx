@@ -4,8 +4,6 @@ import { Icon } from '@iconify/react';
 import { Html, Line, RoundedBox, Text } from '@react-three/drei';
 import React, { useCallback, useMemo } from 'react';
 import * as THREE from 'three';
-import { useThree } from '@react-three/fiber';
-import gsap from 'gsap';
 
 export function Dimensions() {
   const { showDimensions, cabinetColumns, cabinetSize, cabinetLegs } = useCabinetStore();
@@ -63,10 +61,9 @@ export function Dimensions() {
 }
 
 export function EditTools() {
-  const { cabinetColumns, cabinetSize, isVisibleTools, cabinetLegs, setLerpCamera, selectedColumnIndex, setSelectedColumnIndex } = useCabinetStore();
-  const { camera } = useThree();
+  const { cabinetColumns, cabinetSize, isVisibleTools, cabinetLegs, selectedColumnIndex, setSelectedColumnIndex } = useCabinetStore();
   
-  const { totalWidth, totalDepth, totalHeight } = cabinetSize;
+  const { totalWidth, totalDepth } = cabinetSize;
   
   const legHeight = getBottomHeight(cabinetLegs);
   const delta = 0.05;

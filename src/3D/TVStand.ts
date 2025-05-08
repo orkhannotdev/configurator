@@ -1,4 +1,6 @@
 import { GridStyle } from './Styles/Grid';
+
+
 import { StandStyle } from './Styles/Style';
 
 class TVStand {
@@ -10,7 +12,7 @@ class TVStand {
   resize(dimension: Partial<TVStand['dimension']>) {
     this.dimension.width = dimension.width ?? this.dimension.width;
     this.dimension.height = dimension.height ?? this.dimension.height;
-    this.dimension.depth = dimension.depth ?? this.dimension.depth;
+    this.dimension.depth = dimension.depth ?? this.dimension.depth
 
     this.style.resize(this.dimension);
   }

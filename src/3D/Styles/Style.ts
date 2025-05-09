@@ -11,6 +11,7 @@ interface Box {
 
 interface StandStyle {
   box: Box;
+  modifiedBoxes: {[key in string]: {width: number, height: number, depth: number}}
   resize: (dimension: { width: number; height: number; depth: number }) => void;
 }
 

@@ -15,8 +15,8 @@ describe('Static generating. Gradient pattern', () => {
 
 
 
-    expect(stand.style.box.children[0].dimension.width).toBe(.48);
-    expect(stand.style.box.children[1].dimension.width).toBe(.46);
+    expect(stand.style.box.children[0].dimension.width).toBe(.49);
+    expect(stand.style.box.children[1].dimension.width).toBe(.47);
   });
 
   test('1.1 meter', () => {
@@ -30,8 +30,8 @@ describe('Static generating. Gradient pattern', () => {
     expect(stand.style.box.children.length).toBe(2);
 
 
-    expect(stand.style.box.children[0].dimension.width).toBe(.53);
-    expect(stand.style.box.children[1].dimension.width).toBe(.50);
+    expect(stand.style.box.children[0].dimension.width).toBe(.54);
+    expect(stand.style.box.children[1].dimension.width).toBe(.52);
   });
 
 
@@ -46,9 +46,26 @@ describe('Static generating. Gradient pattern', () => {
     expect(stand.style.box.children.length).toBe(3);
 
 
-    expect(stand.style.box.children[0].dimension.width).toBe(.44);
-    expect(stand.style.box.children[1].dimension.width).toBe(.45);
-    expect(stand.style.box.children[2].dimension.width).toBe(.53);
+    expect(stand.style.box.children[0].dimension.width).toBe(.43);
+    expect(stand.style.box.children[1].dimension.width).toBe(.53);
+    expect(stand.style.box.children[2].dimension.width).toBe(.50);
+  });
+
+  test('2 meter', () => {
+    const stand = new TVStand();
+    const style = new Gradient();
+
+    stand.changeStyle(style);
+    stand.resize({ width: 2, height: 1, depth: 1 });
+
+    expect(stand.dimension.width).toBe(2);
+    expect(stand.style.box.children.length).toBe(4);
+
+
+    expect(stand.style.box.children[0].dimension.width).toBe(.43);
+    expect(stand.style.box.children[1].dimension.width).toBe(.38);
+    expect(stand.style.box.children[2].dimension.width).toBe(.59);
+    expect(stand.style.box.children[3].dimension.width).toBe(.56);
   });
 
 

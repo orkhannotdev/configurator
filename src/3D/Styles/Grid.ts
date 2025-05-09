@@ -1,4 +1,4 @@
-import { CELL_SIZE } from '@/utils/utilities';
+import { CELL_SIZE, PLATE_THICKNESS } from '@/utils/utilities';
 import { Box, BoxType, StandStyle } from './Style';
 
 /**
@@ -9,8 +9,9 @@ import { Box, BoxType, StandStyle } from './Style';
  *
  *  Grid is when all columns adjust by resize
  */
-class GridStyle implements StandStyle {
+class Grid implements StandStyle {
   dimension: { width: number; height: number; depth: number };
+  modifiedBoxes: { [key in string]: { width: number; height: number; depth: number } } = {};
   box: Box;
 
   constructor() {
@@ -24,30 +25,39 @@ class GridStyle implements StandStyle {
   }
 
   resize(dimension: { width: number; height: number; depth: number }) {
-    const retBox = structuredClone(this.box);
+    const { maxWidth, minWidth } = CELL_SIZE;
+    const middleWidth = minWidth + (maxWidth - minWidth) / 2;
 
-    const extraWidthPerBox = (this.dimension.width - dimension.width) / this.box.children.length;
+    const edgeOffset = PLATE_THICKNESS * 2;
+    const perColumn = dimension.width / middleWidth;
 
-    let isThereAnyColumnBiggerThanMax = false;
-    this.box.children.forEach((childColumn) => {
-      if (isThereAnyColumnBiggerThanMax) return;
+    this.dimension.width = dimension.width;
+    this.dimension.height = dimension.height;
+    this.dimension.depth = dimension.depth;
 
-      if (childColumn.dimension.width + extraWidthPerBox > CELL_SIZE.maxWidth) {
-        isThereAnyColumnBiggerThanMax = true;
-      }
-    });
+    this.box.dimension = { ...this.dimension };
 
-    if (isThereAnyColumnBiggerThanMax) {
-      
+    const parts = dimension.width / middleWidth;
+    console.log('123')
 
-    } else {
-      retBox.children.forEach((childColumn) => {
-        childColumn.dimension.width += extraWidthPerBox;
-      });
+    let i = 0;
+    while (i <= parts) {
+      const newB: Box = this.createBox();
+      this.box.children.push(newB);
+      //newB.dimension.width =
+      i++;
     }
+  }
 
-    return retBox;
+  private createBox(): Box {
+    const box: Box = {
+      type: BoxType.COLUMN,
+      dimension: { width: 1, height: 1, depth: 1 },
+      children: [],
+    };
+
+    return box;
   }
 }
 
-export { GridStyle };
+export { Grid };

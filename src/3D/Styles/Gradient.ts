@@ -1,4 +1,4 @@
-import { CELL_SIZE } from '@/utils/utilities';
+import { CELL_SIZE, PLATE_THICKNESS } from '@/utils/utilities';
 import { Box, BoxType, StandStyle } from './Style';
 import { round } from '../Helpers/round';
 
@@ -15,6 +15,8 @@ import { round } from '../Helpers/round';
 class Gradient implements StandStyle {
   box: Box;
   dimension = { width: 0, height: 0, depth: 0 };
+  modifiedBoxes: { [key in string]: { width: number; height: number; depth: number } } = {}; // indexes of prev modified boxes;
+  predefinedWidthOnIndexes = [0.43, 0.38, 0.42, 0.27, 0.55, 0.43, 0.38, 0.44, 0.48, 0.48];
 
   constructor() {
     this.box = {
@@ -27,7 +29,7 @@ class Gradient implements StandStyle {
   resize(dimension: { width: number; height: number; depth: number }) {
     const { maxWidth } = CELL_SIZE;
 
-    const edgeOffset = 0.06;
+    const edgeOffset = PLATE_THICKNESS * 2;
 
     this.dimension.width = dimension.width;
     this.dimension.height = dimension.height;
@@ -37,27 +39,28 @@ class Gradient implements StandStyle {
     const parts = Math.floor(dimension.width / maxWidth);
 
     let leftWidth = dimension.width - edgeOffset;
+    const defaultWidth = 0.44;
     const max = parts + 1;
-    let i = 1;
+    let i = 0;
 
-    while (i <= max) {
+    while (i < max) {
       const newB: Box = this.createBox();
       this.box.children.push(newB);
 
       let currentWidth = 0;
 
-      const leftSpaceOnlyForLastTwo = max > 1 && i + 1 === max;
+      const leftSpaceOnlyForLastTwo = max > 1 && i + 2 === max;
+
+      if (leftWidth - maxWidth < 0) {
+        const finalTail = leftWidth;
+        newB.dimension.width = round(finalTail);
+        break;
+      }
 
       if (leftSpaceOnlyForLastTwo) {
         currentWidth = leftWidth * 0.51;
       } else {
-        currentWidth = leftWidth - i * maxWidth;
-      }
-
-      if (currentWidth < 0) {
-        const finalTail = currentWidth + i * maxWidth;
-        newB.dimension.width = round(finalTail);
-        break;
+        currentWidth = this.modifiedBoxes[i] ? this.modifiedBoxes[i].width : (this.predefinedWidthOnIndexes[i] ?? defaultWidth);
       }
 
       newB.dimension.width = round(currentWidth);

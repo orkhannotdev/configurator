@@ -15,10 +15,10 @@ describe('Static generating. Gradient pattern', () => {
 
 
 
-    expect(stand.style.box.children[0].dimension.width).toBe(.48);
+    expect(stand.style.box.children[0].dimension.width).toBe(.26);
   });
 
-  test('.59 meter', () => {
+   test('.59 meter', () => {
     const stand = new TVStand();
     const style = new Grid();
 
@@ -29,8 +29,8 @@ describe('Static generating. Gradient pattern', () => {
     expect(stand.style.box.children.length).toBe(2);
 
 
-    expect(stand.style.box.children[0].dimension.width).toBe(.52);
-    expect(stand.style.box.children[1].dimension.width).toBe(.52);
+    expect(stand.style.box.children[0].dimension.width).toBe(.27);
+    expect(stand.style.box.children[1].dimension.width).toBe(.27);
   });
 
 
@@ -45,8 +45,8 @@ describe('Static generating. Gradient pattern', () => {
     expect(stand.style.box.children.length).toBe(2);
 
 
-    expect(stand.style.box.children[0].dimension.width).toBe(.53);
-    expect(stand.style.box.children[1].dimension.width).toBe(.53);
+    expect(stand.style.box.children[0].dimension.width).toBe(.38);
+    expect(stand.style.box.children[1].dimension.width).toBe(.38);
   });
 
   test('1.5 meter', () => {
@@ -57,14 +57,12 @@ describe('Static generating. Gradient pattern', () => {
     stand.resize({ width: 1.5, height: 1, depth: 1 });
 
     expect(stand.dimension.width).toBe(1.5);
-    expect(stand.style.box.children.length).toBe(5);
+    expect(stand.style.box.children.length).toBe(3);
 
 
-    expect(stand.style.box.children[0].dimension.width).toBe(.54);
-    expect(stand.style.box.children[1].dimension.width).toBe(.54);
-    expect(stand.style.box.children[2].dimension.width).toBe(.54);
-    expect(stand.style.box.children[3].dimension.width).toBe(.54);
-    expect(stand.style.box.children[4].dimension.width).toBe(.54);
+    expect(stand.style.box.children[0].dimension.width).toBe(.49);
+    expect(stand.style.box.children[1].dimension.width).toBe(.49);
+    expect(stand.style.box.children[2].dimension.width).toBe(.49);
   });
 
 

@@ -45,6 +45,8 @@ const ColumnRowControls = () => {
       setCurrentColumns(validMaxColumns);
       updateColumnCount(validMaxColumns);
     }
+
+    console.log(cabinetColumns)
   }, [totalWidth]);
   
   useEffect(() => {

@@ -1,5 +1,6 @@
 import { CELL_SIZE, PLATE_THICKNESS } from '@/utils/utilities';
 import { Box, BoxType, StandStyle } from './Style';
+import { round } from '../Helpers/round';
 
 /**
  *   __________________
@@ -26,25 +27,28 @@ class Grid implements StandStyle {
 
   resize(dimension: { width: number; height: number; depth: number }) {
     const { maxWidth, minWidth } = CELL_SIZE;
-    const middleWidth = minWidth + (maxWidth - minWidth) / 2;
-
-    const edgeOffset = PLATE_THICKNESS * 2;
-    const perColumn = dimension.width / middleWidth;
 
     this.dimension.width = dimension.width;
     this.dimension.height = dimension.height;
     this.dimension.depth = dimension.depth;
-
     this.box.dimension = { ...this.dimension };
 
-    const parts = dimension.width / middleWidth;
-    console.log('123')
+    let { column, width } = this.getColumns(dimension);
+
+  console.log('cp;i,md', column, width)
+    if (width < minWidth && column !== 1) {
+      column--;
+      width = this.getWidthByColumns(dimension, column);
+    } else if (width > maxWidth) {
+      column++;
+      width = this.getWidthByColumns(dimension, column);
+    }
 
     let i = 0;
-    while (i <= parts) {
+    while (i < column) {
       const newB: Box = this.createBox();
+      newB.dimension.width = width;
       this.box.children.push(newB);
-      //newB.dimension.width =
       i++;
     }
   }
@@ -57,6 +61,42 @@ class Grid implements StandStyle {
     };
 
     return box;
+  }
+
+  private getColumns(dimension: { width: number; height: number; depth: number }) {
+    const { maxWidth, minWidth } = CELL_SIZE;
+    const middleWidth = minWidth + (maxWidth - minWidth) / 2;
+    const edgeOffset = PLATE_THICKNESS * 2;
+    const fullWidth = dimension.width - edgeOffset;
+    let columnAmount = Math.floor(fullWidth / middleWidth);
+
+
+    let leftAmount = fullWidth % middleWidth;
+    let perColumn = (fullWidth - leftAmount )/ columnAmount;
+
+    console.log('=======', leftAmount, perColumn)
+
+    if (leftAmount) {
+      perColumn += (leftAmount / columnAmount);
+      perColumn = round(perColumn, 2);
+    }
+
+
+    if (!columnAmount) {
+      perColumn = fullWidth;
+      columnAmount = 1;
+      leftAmount = 0;
+    }
+
+    return { column: columnAmount, width: perColumn, left: leftAmount };
+  }
+
+  private getWidthByColumns(dimension: { width: number; height: number; depth: number }, n: number) {
+    const edgeOffset = PLATE_THICKNESS * 2;
+    const fullWidth = dimension.width - edgeOffset;
+
+
+    return round(fullWidth / n);
   }
 }
 

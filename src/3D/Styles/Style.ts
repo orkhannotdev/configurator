@@ -10,7 +10,7 @@ interface Box {
 }
 
 interface StandStyle {
-  box: Box;
+  boxes: Box[]; // we can change colums count. that is why every style should generate different boxes
   modifiedBoxes: {[key in string]: {width: number, height: number, depth: number}}
   resize: (dimension: { width: number; height: number; depth: number }) => void;
 }

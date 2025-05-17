@@ -13,16 +13,10 @@ import { round } from '../Helpers/round';
 class Grid implements StandStyle {
   dimension: { width: number; height: number; depth: number };
   modifiedBoxes: { [key in string]: { width: number; height: number; depth: number } } = {};
-  box: Box;
+  boxes: Array<Box> = [];
 
   constructor() {
     this.dimension = { width: 0, height: 0, depth: 0 };
-
-    this.box = {
-      dimension: { width: 0, height: 0, depth: 0 },
-      children: [],
-      type: BoxType.COLUMN,
-    };
   }
 
   resize(dimension: { width: number; height: number; depth: number }) {
@@ -31,24 +25,36 @@ class Grid implements StandStyle {
     this.dimension.width = dimension.width;
     this.dimension.height = dimension.height;
     this.dimension.depth = dimension.depth;
-    this.box.dimension = { ...this.dimension };
 
-    let { column, width } = this.getColumns(dimension);
+    let { columnAmount, perColumn } = this.getColumns(dimension);
 
-  console.log('cp;i,md', column, width)
-    if (width < minWidth && column !== 1) {
-      column--;
-      width = this.getWidthByColumns(dimension, column);
-    } else if (width > maxWidth) {
-      column++;
-      width = this.getWidthByColumns(dimension, column);
-    }
 
-    let i = 0;
-    while (i < column) {
-      const newB: Box = this.createBox();
-      newB.dimension.width = width;
-      this.box.children.push(newB);
+    let needOptions = true,
+      max = 100,
+      i = 0;
+    while (needOptions && i < max) {
+      this.boxes.push(this.createBox());
+
+      const lastBox = this.boxes[this.boxes.length - 1];
+      lastBox.children.width = dimension.width
+
+      let j = 0;
+      while (j < columnAmount) {
+        const newB: Box = this.createBox();
+        newB.dimension.width = perColumn;
+        lastBox.children.push(newB);
+        j++;
+      }
+
+      const newPerColumnAmount = this.getWidthByColumns(dimension, columnAmount - 1);
+
+      if(newPerColumnAmount > maxWidth) {
+        needOptions = false;
+      } else {
+        columnAmount--;
+        perColumn = newPerColumnAmount
+      }
+
       i++;
     }
   }
@@ -64,39 +70,22 @@ class Grid implements StandStyle {
   }
 
   private getColumns(dimension: { width: number; height: number; depth: number }) {
-    const { maxWidth, minWidth } = CELL_SIZE;
-    const middleWidth = minWidth + (maxWidth - minWidth) / 2;
+    const { minWidth } = CELL_SIZE;
     const edgeOffset = PLATE_THICKNESS * 2;
     const fullWidth = dimension.width - edgeOffset;
-    let columnAmount = Math.floor(fullWidth / middleWidth);
+    let columnAmount = Math.floor(fullWidth / (minWidth + PLATE_THICKNESS));
+    columnAmount = Math.max(1, columnAmount)
 
+    let perColumn = this.getWidthByColumns(dimension, columnAmount) 
 
-    let leftAmount = fullWidth % middleWidth;
-    let perColumn = (fullWidth - leftAmount )/ columnAmount;
-
-    console.log('=======', leftAmount, perColumn)
-
-    if (leftAmount) {
-      perColumn += (leftAmount / columnAmount);
-      perColumn = round(perColumn, 2);
-    }
-
-
-    if (!columnAmount) {
-      perColumn = fullWidth;
-      columnAmount = 1;
-      leftAmount = 0;
-    }
-
-    return { column: columnAmount, width: perColumn, left: leftAmount };
+    return { columnAmount, perColumn };
   }
 
   private getWidthByColumns(dimension: { width: number; height: number; depth: number }, n: number) {
     const edgeOffset = PLATE_THICKNESS * 2;
     const fullWidth = dimension.width - edgeOffset;
 
-
-    return round(fullWidth / n);
+    return round((fullWidth - (n - 1) * PLATE_THICKNESS) / n, 2); 
   }
 }
 

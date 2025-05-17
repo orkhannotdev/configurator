@@ -76,6 +76,7 @@ const ColumnRowControls = () => {
   
   useEffect(() => {
     setCurrentColumns(cabinetColumns.length);
+    console.log('Columns', cabinetColumns)
   }, [cabinetColumns.length]);
   
   useEffect(() => {

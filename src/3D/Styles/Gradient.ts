@@ -13,18 +13,10 @@ import { round } from '../Helpers/round';
  *  C and D change by 51/49 % ratio -> that means when we have 100 C get 51 and D 49
  */
 class Gradient implements StandStyle {
-  box: Box;
+  boxes: Array<Box> = [];
   dimension = { width: 0, height: 0, depth: 0 };
   modifiedBoxes: { [key in string]: { width: number; height: number; depth: number } } = {}; // indexes of prev modified boxes;
-  predefinedWidthOnIndexes = [0.43, 0.38, 0.42, 0.27, 0.55, 0.43, 0.38, 0.44, 0.48, 0.48];
-
-  constructor() {
-    this.box = {
-      type: BoxType.COLUMN,
-      dimension: { width: 0, height: 0, depth: 0 },
-      children: [],
-    };
-  }
+  predefinedWidthOnIndexes = [0.44, 0.38, 0.44, 0.37, 0.43, 0.43, 0.38, 0.44];
 
   resize(dimension: { width: number; height: number; depth: number }) {
     const { maxWidth } = CELL_SIZE;
@@ -34,18 +26,22 @@ class Gradient implements StandStyle {
     this.dimension.width = dimension.width;
     this.dimension.height = dimension.height;
     this.dimension.depth = dimension.depth;
-    this.box.dimension = { ...this.dimension };
 
-    const parts = Math.floor(dimension.width / maxWidth);
+    const parts = Math.floor(dimension.width / (maxWidth + PLATE_THICKNESS));
 
-    let leftWidth = dimension.width - edgeOffset;
-    const defaultWidth = 0.44;
+    this.boxes.push(this.createBox());
+    const lastBox = this.boxes[this.boxes.length - 1];
+    lastBox.dimension.width = dimension.width;
+
+    let leftWidth = dimension.width - (parts + 2) * PLATE_THICKNESS;
     const max = parts + 1;
     let i = 0;
 
     while (i < max) {
       const newB: Box = this.createBox();
-      this.box.children.push(newB);
+      lastBox.children.push(newB);
+      
+      const definedVal = this.getPredefined(i);
 
       let currentWidth = 0;
 
@@ -58,9 +54,14 @@ class Gradient implements StandStyle {
       }
 
       if (leftSpaceOnlyForLastTwo) {
-        currentWidth = leftWidth * 0.51;
+        const leftSide: number = this.modifiedBoxes[i]?.width ?? definedVal;
+        const ration = (leftSide / definedVal);
+
+        //currentWidth =  leftWidth * 0.513 * ration;
+        const twoNeighboursRatio = this.predefinedWidthOnIndexes[i] / (this.predefinedWidthOnIndexes[i] + this.predefinedWidthOnIndexes[i+1])
+        currentWidth =  leftWidth* twoNeighboursRatio * ration;
       } else {
-        currentWidth = this.modifiedBoxes[i] ? this.modifiedBoxes[i].width : (this.predefinedWidthOnIndexes[i] ?? defaultWidth);
+        currentWidth = this.modifiedBoxes[i] ? this.modifiedBoxes[i].width : (definedVal);
       }
 
       newB.dimension.width = round(currentWidth);
@@ -68,6 +69,10 @@ class Gradient implements StandStyle {
 
       i++;
     }
+  }
+
+  private getPredefined(i: number): number {
+    return this.predefinedWidthOnIndexes[i] ?? 0.44;
   }
 
   private createBox(): Box {

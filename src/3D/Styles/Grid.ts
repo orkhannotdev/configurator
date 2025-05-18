@@ -20,7 +20,8 @@ class Grid implements StandStyle {
   }
 
   resize(dimension: { width: number; height: number; depth: number }) {
-    const { maxWidth, minWidth } = CELL_SIZE;
+    const { maxWidth} = CELL_SIZE;
+
 
     this.dimension.width = dimension.width;
     this.dimension.height = dimension.height;
@@ -36,7 +37,7 @@ class Grid implements StandStyle {
       this.boxes.push(this.createBox());
 
       const lastBox = this.boxes[this.boxes.length - 1];
-      lastBox.children.width = dimension.width
+      lastBox.dimension.width = dimension.width
 
       let j = 0;
       while (j < columnAmount) {

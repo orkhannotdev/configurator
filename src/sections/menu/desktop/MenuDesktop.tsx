@@ -16,7 +16,7 @@ function MenuDesktop() {
       <div className={menuStyles.sections}>
         {menuItems.map((option, index) => (
           <div key={index} className={menuStyles.section}>
-            <div className={menuStyles.subtitle}>{option.title}</div>
+            <div className={menuStyles.subtitle}>{option.title} ===</div>
             {option.component}
           </div>
         ))}

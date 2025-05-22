@@ -64,6 +64,7 @@ class Grid implements StandStyle {
     const box: Box = {
       type: BoxType.COLUMN,
       dimension: { width: 1, height: 1, depth: 1 },
+      position: { x: 0, y: 0, z: 0},
       children: [],
     };
 

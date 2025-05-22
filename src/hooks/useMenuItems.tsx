@@ -97,7 +97,8 @@ const useMenuItems = () => {
     setCabinetTextureURL, 
     setCabinetBackplate, 
     setSelectedColumnIndex, 
-    setHoveredColumnIndex 
+    setHoveredColumnIndex,
+    setCabinetStyle
   } = useCabinetStore();
 
   // Add this effect to ensure default values are properly selected in UI
@@ -124,8 +125,8 @@ const useMenuItems = () => {
 
   // CABINET STYLE
   const styleOptions = getStyleOptions();
-  const onChangeStyle = () => {
-    // setCabinetStyle(value);
+  const onChangeStyle = (value: ECabinetStyle) => {
+    setCabinetStyle(value);
     resetSelectionIndexes();
   };
 

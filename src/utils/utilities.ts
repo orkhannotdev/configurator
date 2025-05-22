@@ -7,7 +7,7 @@ import { getLayoutOptionsOfColumn } from './columnLayoutOptions';
 // Dimensions
 export const PLATE_THICKNESS = 0.02;
 export const CELL_SIZE = {
-  maxWidth: 0.60,
+  maxWidth: 0.6,
   minWidth: 0.25,
   maxHeight: 0.35,
   minHeight: 0.15,
@@ -282,16 +282,12 @@ export function getColumnCount({ totalWidth }: { totalWidth: number }) {
   };
 }
 
-// Get the height of a cell for a given number of rows and a cabinet height
 export function getCellHeight(rowCount: number, cabinetHeight: number) {
-  // Get the height of a cell
   const cellHeight = (cabinetHeight - (rowCount - 1) * PLATE_THICKNESS) / rowCount;
   return cellHeight;
 }
 
-// Get the width of a cell for a given number of columns and a total width
 export function getCellWidth(columnCount: number, totalWidth: number) {
-  // Get the width of a cell
   const cellWidth = (totalWidth - (columnCount + 1) * PLATE_THICKNESS) / columnCount;
   return cellWidth;
 }
@@ -424,46 +420,26 @@ type TGetCalculatedColumnsProps = {
 };
 
 // Fix the function signature
-export const getCalculatedColumns = ({
-  current: _current,
-  cabinetSize,
-  cabinetStyle,
-  legHeight,
-  columnCount,
-}: TGetCalculatedColumnsProps): IColumn[] => {
+export const getCalculatedColumns = ({ current: _current, cabinetSize, cabinetStyle, legHeight, columnCount }: TGetCalculatedColumnsProps): IColumn[] => {
   const { totalWidth, totalHeight } = cabinetSize;
-  
-  // Calculate available width (total width minus side plates)
   const availableWidth = totalWidth - 2 * PLATE_THICKNESS;
-  
-  // Determine how many columns can fit
   let numColumns;
+
   if (columnCount) {
     numColumns = columnCount;
   } else {
-    // Calculate based on minimum column width
     numColumns = Math.floor(availableWidth / (CELL_SIZE.minWidth + PLATE_THICKNESS));
-    // Ensure at least one column
     numColumns = Math.max(1, numColumns);
   }
-  
-  // Calculate column width
+
   const columnWidth = (availableWidth - (numColumns - 1) * PLATE_THICKNESS) / numColumns;
-  
-  // Create columns array
   const columns: IColumn[] = [];
-  
-  // Generate each column
+
   for (let i = 0; i < numColumns; i++) {
-    // Calculate position
     const posX = -totalWidth / 2 + PLATE_THICKNESS + i * (columnWidth + PLATE_THICKNESS) + columnWidth / 2;
-    
-    // Create column with appropriate layout
     const column = createColumnWithLayout(columnWidth, posX, totalHeight, legHeight, cabinetStyle);
-    
     columns.push(column);
   }
-  
   return columns;
 };
 
@@ -548,27 +524,24 @@ export const getLayoutImages = ({ totalHeight }: { totalHeight: number }) => {
 
 export const getId = (item: string) => `${item}-${Math.random().toString(32).slice(-4)}`;
 
-export const createColumnWithLayout = (columnWidth: number, posX: number, totalHeight: number, legHeight: number, cabinetStyle: ECabinetStyle): IColumn => {
+export const createColumnWithLayout = (columnWidth: number, 
+                                       posX: number, 
+                                       totalHeight: number, 
+                                       legHeight: number, 
+                                       cabinetStyle: ECabinetStyle): IColumn => {
   // Calculate the cabinet height (excluding legs and plate thickness)
   const cabinetHeight = totalHeight - legHeight - 2 * PLATE_THICKNESS;
-  
-  // Get the basic vertical layout for the column
+
   const rows = getColumnVerticalLayout({ cabinetHeight });
-  
-  // Get the starting position Y coordinate
   const startPosY = legHeight + PLATE_THICKNESS;
-  
-  // Default to an empty layout (will be populated based on style)
+
   let layoutIndex = 0;
   let doors: any[] = [];
   let drawers: any[] = [];
-  
-  // Based on cabinet style, choose an appropriate layout
+
   switch (cabinetStyle) {
     case ECabinetStyle.MODERN:
-      // For modern style, use all drawers
       layoutIndex = 1;
-      // Create a drawer for each row
       drawers = rows.map((row, index) => ({
         index,
         size: {
@@ -581,28 +554,41 @@ export const createColumnWithLayout = (columnWidth: number, posX: number, totalH
         },
       }));
       break;
-      
-    case ECabinetStyle.CLASSIC:
-    default:
-      // For classic style, use doors for all rows
-      layoutIndex = 0;
-      // Create a door for the full height
-      doors = [{
-        index: 0,
+
+    case ECabinetStyle.GRADIENT:
+      layoutIndex = 1;
+      drawers = rows.map((row, index) => ({
+        index,
         size: {
           width: columnWidth,
-          height: cabinetHeight,
+          height: row.height,
         },
         pos: {
           x: posX,
-          y: startPosY + cabinetHeight / 2,
+          y: 0,
         },
-        opening: 1, // Default opening direction
-      }];
+      }));
+      break;
+    case ECabinetStyle.CLASSIC:
+    default:
+      layoutIndex = 0;
+      doors = [
+        {
+          index: 0,
+          size: {
+            width: columnWidth,
+            height: cabinetHeight,
+          },
+          pos: {
+            x: posX,
+            y: startPosY + cabinetHeight / 2,
+          },
+          opening: 1
+        },
+      ];
       break;
   }
-  
-  // Create and return the column object
+
   return {
     id: Math.random().toString(36).substr(2, 9),
     index: 0,
@@ -630,22 +616,22 @@ export const CABINET_SIZE_CONSTRAINTS = {
 
 export const applyRandomLayoutsToColumns = (columns: IColumn[], totalHeight: number, legHeight: number): IColumn[] => {
   const startPosY = legHeight + PLATE_THICKNESS;
-  
-  return columns.map(column => {
+
+  return columns.map((column) => {
     // Get all available layout options for this column
-    const layoutOptions = getLayoutOptionsOfColumn({ 
-      totalHeight, 
-      legHeight, 
-      columnWidth: column.width, 
-      posX: column.posX, 
+    const layoutOptions = getLayoutOptionsOfColumn({
+      totalHeight,
+      legHeight,
+      columnWidth: column.width,
+      posX: column.posX,
       startPosY,
-      doorDir: 1 // Default door opening direction
+      doorDir: 1, // Default door opening direction
     });
-    
+
     // Select a random layout option
     const randomLayoutIndex = Math.floor(Math.random() * layoutOptions.length);
     const randomLayout = layoutOptions[randomLayoutIndex];
-    
+
     // Apply the random layout to the column
     return {
       ...column,
@@ -653,7 +639,7 @@ export const applyRandomLayoutsToColumns = (columns: IColumn[], totalHeight: num
       rows: randomLayout.rows,
       doors: randomLayout.doors,
       drawers: randomLayout.drawers,
-      lastRow: randomLayout.lastRow
+      lastRow: randomLayout.lastRow,
     };
   });
 };

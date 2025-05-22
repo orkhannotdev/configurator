@@ -1,6 +1,6 @@
 import { useCabinetStore } from '@/store';
 import { ICabinetSize, IColumn } from '@/store/types';
-import { ECabinetLegs, ECabinetStyle, getBottomHeight, getCalculatedColumns, getPartitonPlates, applyRandomLayoutsToColumns, PLATE_THICKNESS } from '@/utils/utilities';
+import { ECabinetLegs, ECabinetStyle, getBottomHeight, getCalculatedColumns, getPartitonPlates, applyRandomLayoutsToColumns, PLATE_THICKNESS, createColumnWithLayout } from '@/utils/utilities';
 import React, { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { BackPanel } from './plates/BackPanel';
@@ -11,8 +11,10 @@ import { SpacePlane } from './plates/SpacePlane';
 import { Dimensions, EditTools } from './plates/Tools';
 import { VerticalDivider } from './plates/VerticalDivider';
 import { VerticalPlate } from './plates/VerticalPlate';
+import { TVStand } from '@/3D/TVStand';
+import { Gradient } from '@/3D/Styles/Gradient';
 
-// Function to apply gradient style to columns
+
 const applyGradientStyle = (
   columns: IColumn[], 
   cabinetSize: ICabinetSize, 
@@ -21,23 +23,19 @@ const applyGradientStyle = (
   const legHeight = getBottomHeight(cabinetLegs);
   const { totalHeight } = cabinetSize;
   
-  // Create a copy of columns to modify
   const gradientColumns = [...columns];
   
   gradientColumns.forEach((column) => {
     column.lastRow = 'drawer';
     column.doors = [];
     
-    // Calculate available height for drawers
     const availableHeight = totalHeight - legHeight - (column.rows.length + 1) * PLATE_THICKNESS;
     const baseDrawerHeight = availableHeight / column.rows.length;
     
     const startPosY = legHeight + PLATE_THICKNESS;
     
-    // Create gradient drawers using the available height
     const drawers = column.rows.map((_, index) => {
-      const gradientFactor = 1 + (index / column.rows.length) * 0.5;
-      const height = baseDrawerHeight * gradientFactor;
+      const height = baseDrawerHeight;
       
       return {
         index,
@@ -67,11 +65,8 @@ export const InteriorPlates = React.memo(function InteriorPlates() {
     setCabinetColumns,
   } = useCabinetStore();
   
-  // Reference to track initial load
   const isInitialLoadRef = useRef(true);
-  // Reference to track previous style to detect style changes
   const prevStyleRef = useRef(cabinetStyle);
-  // Reference to track previous column count
   const prevColumnCountRef = useRef(0);
 
   const { verticals, horizontals, backsides, availableSpaces } = useMemo(() => {
@@ -85,13 +80,10 @@ export const InteriorPlates = React.memo(function InteriorPlates() {
     return getCalculatedColumns({ current, cabinetStyle, cabinetSize, legHeight });
   };
 
-  // Handle initial load and style changes - apply random layouts
   useEffect(() => {
-    // Only run this effect on initial load or when style changes
     if (isInitialLoadRef.current || prevStyleRef.current !== cabinetStyle) {
       let current: IColumn[] = [];
       
-      // If we have existing columns and only the style changed, preserve column structure
       if (cabinetColumns.length > 0 && !isInitialLoadRef.current) {
         current = [...cabinetColumns];
       }
@@ -99,158 +91,74 @@ export const InteriorPlates = React.memo(function InteriorPlates() {
       const newColumns = getColumns(current, cabinetSize, cabinetStyle, cabinetLegs);
       const legHeight = getBottomHeight(cabinetLegs);
       
-      // Apply random layouts - ONLY on initial load or style change
       const randomizedColumns = applyRandomLayoutsToColumns(newColumns, cabinetSize.totalHeight, legHeight);
       setCabinetColumns(randomizedColumns);
       
-      // Update refs
       isInitialLoadRef.current = false;
       prevStyleRef.current = cabinetStyle;
       prevColumnCountRef.current = randomizedColumns.length;
     }
   }, [cabinetStyle, cabinetSize.totalHeight]);
 
-  // Handle resize operations - preserve layouts
-  useEffect(() => {
-    // Skip on initial load or style changes (that's handled by the other effect)
-    if (!isInitialLoadRef.current && prevStyleRef.current === cabinetStyle && cabinetColumns.length > 0) {
-      // Preserve existing column structure but update dimensions
-      const current = [...cabinetColumns];
-      const newColumns = getColumns(current, cabinetSize, cabinetStyle, cabinetLegs);
-      
-      // Check if we have more columns than before (width increased)
-      if (newColumns.length > prevColumnCountRef.current) {
-        const legHeight = getBottomHeight(cabinetLegs);
-        
-        // Get the existing columns with updated dimensions
-        const existingColumns = newColumns.slice(0, prevColumnCountRef.current);
-        
-        // Get only the new columns
-        const newColumnsToAdd = newColumns.slice(prevColumnCountRef.current);
-        
-        // Apply random layouts ONLY to the new columns
-        const randomizedNewColumns = applyRandomLayoutsToColumns(
-          newColumnsToAdd, 
-          cabinetSize.totalHeight, 
-          legHeight
-        );
-        
-        // Combine existing columns with randomized new columns
-        const finalColumns = [...existingColumns, ...randomizedNewColumns];
-        
-        // Update state and reference
-        setCabinetColumns(finalColumns);
-        prevColumnCountRef.current = finalColumns.length;
-      } else {
-        // When no new columns added, just use the standard resize logic
-        setCabinetColumns(newColumns);
-        prevColumnCountRef.current = newColumns.length;
-      }
-    }
-  }, [cabinetSize, cabinetLegs]);
 
-  // Apply style changes when style is selected
   useEffect(() => {
     if (cabinetStyle === 'gradient') {
-      // Apply gradient style to columns
+      const tvStand = new TVStand();
+      tvStand.setFromString(cabinetStyle);
+      tvStand.resize({width: cabinetSize.totalWidth});
+
+      let cabinetColumns: Array<IColumn> = [];
+      const { totalHeight} = cabinetSize;
+
+      let posX = -cabinetSize.totalWidth / 2 + PLATE_THICKNESS; 
+      const legHeight = getBottomHeight(cabinetLegs);
+
+      tvStand.style.boxes[0].children.forEach((child) => {
+        const columnWidth = child.dimension.width; 
+        posX += columnWidth/2;
+        cabinetColumns.push(createColumnWithLayout(child.dimension.width, posX, totalHeight, legHeight, cabinetStyle )) 
+        posX += columnWidth/2 + PLATE_THICKNESS;
+      })
+
       const gradientColumns = applyGradientStyle(cabinetColumns, cabinetSize, cabinetLegs);
       setCabinetColumns(gradientColumns);
     }
   }, [cabinetStyle, cabinetColumns.length, cabinetSize, cabinetLegs, setCabinetColumns]);
   
-  // Existing useEffect for cabinet size changes
-  useEffect(() => {
-    // Skip on initial load or style changes (that's handled by the other effect)
-    if (!isInitialLoadRef.current && prevStyleRef.current === cabinetStyle && cabinetColumns.length > 0) {
-      // Preserve existing column structure but update dimensions
-      const current = [...cabinetColumns];
-      const newColumns = getColumns(current, cabinetSize, cabinetStyle, cabinetLegs);
-      
-      // If gradient style is selected, reapply it after size changes
-      if (cabinetStyle === 'gradient') {
-        const gradientColumns = applyGradientStyle(newColumns, cabinetSize, cabinetLegs);
-        setCabinetColumns(gradientColumns);
-        prevColumnCountRef.current = gradientColumns.length;
-        return;
-      }
-      
-      // Check if we have more columns than before (width increased)
-      if (newColumns.length > prevColumnCountRef.current) {
-        const legHeight = getBottomHeight(cabinetLegs);
-        
-        // Get the existing columns with updated dimensions
-        const existingColumns = newColumns.slice(0, prevColumnCountRef.current);
-        
-        // Get only the new columns
-        const newColumnsToAdd = newColumns.slice(prevColumnCountRef.current);
-        
-        // Apply random layouts ONLY to the new columns
-        const randomizedNewColumns = applyRandomLayoutsToColumns(
-          newColumnsToAdd, 
-          cabinetSize.totalHeight, 
-          legHeight
-        );
-        
-        // Combine existing columns with randomized new columns
-        const finalColumns = [...existingColumns, ...randomizedNewColumns];
-        
-        // Update state and reference
-        setCabinetColumns(finalColumns);
-        prevColumnCountRef.current = finalColumns.length;
-      } else {
-        // When no new columns added, just use the standard resize logic
-        setCabinetColumns(newColumns);
-        prevColumnCountRef.current = newColumns.length;
-      }
-    }
-  }, [cabinetSize, cabinetLegs, cabinetStyle]);
+  //useEffect(() => {
+    //if (!isInitialLoadRef.current && prevStyleRef.current === cabinetStyle && cabinetColumns.length > 0) {
+      //const current = [...cabinetColumns];
+      //const newColumns = getColumns(current, cabinetSize, cabinetStyle, cabinetLegs);
+      //
+      //if (cabinetStyle === 'gradient') {
+        //const gradientColumns = applyGradientStyle(newColumns, cabinetSize, cabinetLegs);
+        //setCabinetColumns(gradientColumns);
+        //prevColumnCountRef.current = gradientColumns.length;
+        //return;
+      //}
+      //
+      //if (newColumns.length > prevColumnCountRef.current) {
+        //const legHeight = getBottomHeight(cabinetLegs);
+        //
+        //const existingColumns = newColumns.slice(0, prevColumnCountRef.current);
+        //const newColumnsToAdd = newColumns.slice(prevColumnCountRef.current);
+        //const randomizedNewColumns = applyRandomLayoutsToColumns(
+          //newColumnsToAdd, 
+          //cabinetSize.totalHeight, 
+          //legHeight
+        //);
+        //
+        //const finalColumns = [...existingColumns, ...randomizedNewColumns];
+        //
+        //setCabinetColumns(finalColumns);
+        //prevColumnCountRef.current = finalColumns.length;
+      //} else {
+        //setCabinetColumns(newColumns);
+        //prevColumnCountRef.current = newColumns.length;
+      //}
+    //}
+  //}, [cabinetSize, cabinetLegs, cabinetStyle]);
 
-  // Add this effect to set maximum columns and shelves on initial load
-  useEffect(() => {
-    if (isInitialLoadRef.current) {
-      // Set maximum columns (9) and maximum shelves (6) on initial load
-      const legHeight = getBottomHeight(cabinetLegs);
-      
-      // Generate columns with maximum count (9)
-      const maxColumns = getCalculatedColumns({
-        current: [],
-        cabinetStyle,
-        cabinetSize,
-        legHeight,
-        columnCount: 9 // Set to maximum 9 columns
-      });
-      
-      // For each column, ensure it has maximum shelves (6)
-      const columnsWithMaxShelves = maxColumns.map(column => {
-        // Calculate cabinet height (excluding legs and plate thickness)
-        const cabinetHeight = cabinetSize.totalHeight - legHeight - 2 * PLATE_THICKNESS;
-        
-        // Generate 6 rows (maximum shelves)
-        const newRows = [];
-        for (let i = 0; i < 6; i++) {
-          newRows.push({
-            index: i,
-            height: cabinetHeight / 6 - (PLATE_THICKNESS * 5 / 6) // Account for plate thickness
-          });
-        }
-        
-        return {
-          ...column,
-          rows: newRows,
-          lastRow: column.lastRow || 'door'
-        };
-      });
-      
-      // Apply random layouts to the columns with max shelves
-      const randomizedColumns = applyRandomLayoutsToColumns(
-        columnsWithMaxShelves, 
-        cabinetSize.totalHeight, 
-        legHeight
-      );
-      
-      setCabinetColumns(randomizedColumns);
-    }
-  }, []);
 
   return (
     <group dispose={null}>

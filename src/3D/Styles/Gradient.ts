@@ -21,31 +21,43 @@ class Gradient implements StandStyle {
   resize(dimension: { width: number; height: number; depth: number }) {
     const { maxWidth } = CELL_SIZE;
 
-    const edgeOffset = PLATE_THICKNESS * 2;
-
     this.dimension.width = dimension.width;
     this.dimension.height = dimension.height;
     this.dimension.depth = dimension.depth;
 
-    const parts = Math.floor(dimension.width / (maxWidth + PLATE_THICKNESS));
+    let parts = 0;
+
+    {
+      let i = 0;
+      let max = 100
+      let sum = PLATE_THICKNESS;
+
+      while(i < max) {
+        const lastTwo = dimension.width - sum
+        if (lastTwo < .54){
+          parts = i + 1;
+          break;
+        } 
+
+        sum += this.getPredefined(i) + PLATE_THICKNESS;
+        
+        i++;
+      }
+    }
+
 
     this.boxes.push(this.createBox());
     const lastBox = this.boxes[this.boxes.length - 1];
     lastBox.dimension.width = dimension.width;
 
-    let leftWidth = dimension.width - (parts + 2) * PLATE_THICKNESS;
-    const max = parts + 1;
+    let leftWidth = dimension.width - (parts) * PLATE_THICKNESS;
     let i = 0;
 
-    while (i < max) {
+    while (i < parts) {
       const newB: Box = this.createBox();
       lastBox.children.push(newB);
-      
+
       const definedVal = this.getPredefined(i);
-
-      let currentWidth = 0;
-
-      const leftSpaceOnlyForLastTwo = max > 1 && i + 2 === max;
 
       if (leftWidth - maxWidth < 0) {
         const finalTail = leftWidth;
@@ -53,19 +65,23 @@ class Gradient implements StandStyle {
         break;
       }
 
-      if (leftSpaceOnlyForLastTwo) {
-        const leftSide: number = this.modifiedBoxes[i]?.width ?? definedVal;
-        const ration = (leftSide / definedVal);
+      let currentWidth = 0;
 
-        //currentWidth =  leftWidth * 0.513 * ration;
-        const twoNeighboursRatio = this.predefinedWidthOnIndexes[i] / (this.predefinedWidthOnIndexes[i] + this.predefinedWidthOnIndexes[i+1])
-        currentWidth =  leftWidth* twoNeighboursRatio * ration;
+      const lastTwoColumns = leftWidth < 1.09 
+
+      if (lastTwoColumns) {
+        const leftSide: number = this.modifiedBoxes[i]?.width ?? definedVal;
+        const ration = leftSide / definedVal;
+
+        currentWidth = leftWidth * .5 * ration;
+        
       } else {
-        currentWidth = this.modifiedBoxes[i] ? this.modifiedBoxes[i].width : (definedVal);
+        currentWidth = this.modifiedBoxes[i] ? this.modifiedBoxes[i].width : definedVal;
       }
 
+      console.log('currentWidth', currentWidth)
       newB.dimension.width = round(currentWidth);
-      leftWidth -= currentWidth;
+      leftWidth -= (currentWidth);
 
       i++;
     }
@@ -79,6 +95,7 @@ class Gradient implements StandStyle {
     const box: Box = {
       type: BoxType.COLUMN,
       dimension: { width: 1, height: 1, depth: 1 },
+      position: {x: 0, y: 0, z: 0},
       children: [],
     };
 

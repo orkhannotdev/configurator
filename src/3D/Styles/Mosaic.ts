@@ -17,7 +17,6 @@ class Mosaic implements StandStyle {
 
   resize(dimension: { width: number; height: number; depth: number }) {
     const {minWidth, maxWidth} = CELL_SIZE
-    const midWidth = (maxWidth + minWidth) /2;
 
     this.dimension.width = dimension.width;
     this.dimension.height = dimension.height;
@@ -26,35 +25,37 @@ class Mosaic implements StandStyle {
     let parts = 0;
 
     {
-      let i = 1;
+      let i = 0;
       let max = 100;
       let sum = PLATE_THICKNESS;
+      const maxW = .545;
 
       while (i < max) {
         const lastTwo = dimension.width - sum;
 
-
-        if(lastTwo <= 0) {
+        if(lastTwo  <= Number.EPSILON) {
+          parts = i
           break
         }
 
-        if (lastTwo > 0 && lastTwo - 0.01 < maxWidth - PLATE_THICKNESS * 2 ) {
-          parts = i
+        
+        const toSum = this.isIndexStatic(i) ? 0.17 : maxW 
+
+        if (lastTwo > 0 && lastTwo <  toSum - PLATE_THICKNESS ) {
+          parts = i + 1
           break;
         }
 
-
-        const toSum = this.isIndexStatic(i) ? 0.17 : maxWidth - PLATE_THICKNESS * 2 - 0.01;
         sum += (toSum + PLATE_THICKNESS);
 
         i++;
       }
     }
 
+
     parts = parts ? parts : 1;
 
     this.order = this.generateOrder(parts);
-
     this.boxes.push(this.createBox());
     const lastBox = this.boxes[this.boxes.length - 1];
     lastBox.dimension.width = dimension.width;
@@ -62,24 +63,24 @@ class Mosaic implements StandStyle {
     const staticParts = this.getStaticAmount(parts)
     const staticAmount =  staticParts * .17;
     const dynamicParts = parts - staticParts;
-    let leftWidth = dimension.width - parts * PLATE_THICKNESS - staticAmount;
+
+    let leftWidth = dimension.width - (parts + 1) * PLATE_THICKNESS - staticAmount;
     let i = 0;
+   const ration = leftWidth / dynamicParts
 
     while (i < parts) {
       const newB: Box = this.createBox();
       lastBox.children.push(newB);
 
       const isStatic = this.order[i] === 'static';
-      
-      let currentWidth = isStatic ? 0.17 : leftWidth / dynamicParts
+      let currentWidth = isStatic ? 0.17 : ration
 
-      newB.dimension.width = round(currentWidth);
+      newB.dimension.width = round(currentWidth - 0.001);
       leftWidth -= currentWidth;
 
       i++;
     }
 
-    lastBox.children.forEach(child => console.log(child.dimension))
   }
 
   /**
@@ -97,7 +98,7 @@ class Mosaic implements StandStyle {
     */
   generateOrder(columns: number): Array<'static' | 'dynamic'> {
     // (n * (n + 1)) / 2
-    const staticColumns = Math.floor((-1 + Math.sqrt(1 + 8 * columns)) / 2);
+    const staticColumns = Math.floor((-3 + Math.sqrt(9 + 8 + 8 * columns)) / 2);
     const ret: Array<'static' | 'dynamic'>= [];
 
     ret.push('dynamic');
@@ -119,16 +120,22 @@ class Mosaic implements StandStyle {
       i++;
     }
 
+    if(ret.length === 2) {ret.reverse();}
+
     return ret;
   }
 
   getStaticAmount(columns: number): number {
-    return Math.floor((-1 + Math.sqrt(9 - 8 + 8 * columns)) / 2);
+    if(!columns) return 0;
+    const res = Math.floor((-3 + Math.sqrt(9 + 8 * (columns))) / 2); 
+    return res; 
   }
 
   isIndexStatic(index: number): boolean {
-    const res = (-1 + Math.sqrt(9 + 8 - 8 * index)) / 2;
-    return Boolean(!(res % 1) && res);
+    if(!index) return false;
+    const res = (-3 + Math.sqrt(9 + 8  + 8 * index)) / 2;
+
+    return !(res % 1);
   }
 
   private createBox(): Box {

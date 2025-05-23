@@ -569,6 +569,20 @@ export const createColumnWithLayout = (columnWidth: number,
         },
       }));
       break;
+    case ECabinetStyle.MOSAIC:
+      layoutIndex = 1;
+      drawers = rows.map((row, index) => ({
+        index,
+        size: {
+          width: columnWidth,
+          height: row.height,
+        },
+        pos: {
+          x: posX,
+          y: 0,
+        },
+      }));
+      break;
     case ECabinetStyle.CLASSIC:
     default:
       layoutIndex = 0;

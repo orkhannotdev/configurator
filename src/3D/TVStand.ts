@@ -2,6 +2,7 @@ import { ECabinetStyle } from '@/utils/utilities';
 import { Grid } from './Styles/Grid';
 import { StandStyle } from './Styles/Style';
 import { Gradient } from './Styles/Gradient';
+import { Mosaic } from './Styles/Mosaic';
 
 class TVStand {
   // user change initial size, and if user remove box and restore it we can get value from here;
@@ -21,6 +22,9 @@ class TVStand {
     switch(style) {
       case "grid":
         this.style = new Grid()
+        break;
+      case "mosaic":
+        this.style = new Mosaic()
         break;
       case "gradient":
         this.style = new Gradient();

@@ -102,8 +102,8 @@ export const InteriorPlates = React.memo(function InteriorPlates() {
 
 
   useEffect(() => {
-    if (cabinetStyle === 'gradient') {
       const tvStand = new TVStand();
+      console.log('cabinet styke', cabinetStyle)
       tvStand.setFromString(cabinetStyle);
       tvStand.resize({width: cabinetSize.totalWidth});
 
@@ -121,43 +121,10 @@ export const InteriorPlates = React.memo(function InteriorPlates() {
       })
 
       const gradientColumns = applyGradientStyle(cabinetColumns, cabinetSize, cabinetLegs);
+      console.log('gradientColumns', gradientColumns)
       setCabinetColumns(gradientColumns);
-    }
   }, [cabinetStyle, cabinetColumns.length, cabinetSize, cabinetLegs, setCabinetColumns]);
   
-  //useEffect(() => {
-    //if (!isInitialLoadRef.current && prevStyleRef.current === cabinetStyle && cabinetColumns.length > 0) {
-      //const current = [...cabinetColumns];
-      //const newColumns = getColumns(current, cabinetSize, cabinetStyle, cabinetLegs);
-      //
-      //if (cabinetStyle === 'gradient') {
-        //const gradientColumns = applyGradientStyle(newColumns, cabinetSize, cabinetLegs);
-        //setCabinetColumns(gradientColumns);
-        //prevColumnCountRef.current = gradientColumns.length;
-        //return;
-      //}
-      //
-      //if (newColumns.length > prevColumnCountRef.current) {
-        //const legHeight = getBottomHeight(cabinetLegs);
-        //
-        //const existingColumns = newColumns.slice(0, prevColumnCountRef.current);
-        //const newColumnsToAdd = newColumns.slice(prevColumnCountRef.current);
-        //const randomizedNewColumns = applyRandomLayoutsToColumns(
-          //newColumnsToAdd, 
-          //cabinetSize.totalHeight, 
-          //legHeight
-        //);
-        //
-        //const finalColumns = [...existingColumns, ...randomizedNewColumns];
-        //
-        //setCabinetColumns(finalColumns);
-        //prevColumnCountRef.current = finalColumns.length;
-      //} else {
-        //setCabinetColumns(newColumns);
-        //prevColumnCountRef.current = newColumns.length;
-      //}
-    //}
-  //}, [cabinetSize, cabinetLegs, cabinetStyle]);
 
 
   return (

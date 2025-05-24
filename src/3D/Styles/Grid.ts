@@ -1,5 +1,5 @@
 import { CELL_SIZE, PLATE_THICKNESS } from '@/utils/utilities';
-import { Box, BoxType, StandStyle } from './Style';
+import { Box, BOX_TYPE, StandStyle } from './Style';
 import { round } from '../Helpers/round';
 
 /**
@@ -20,13 +20,17 @@ class Grid implements StandStyle {
   }
 
   resize(dimension: { width: number; height: number; depth: number }) {
-    const { maxWidth} = CELL_SIZE;
-
-
     this.dimension.width = dimension.width;
     this.dimension.height = dimension.height;
     this.dimension.depth = dimension.depth;
 
+    this.resizeWidht();
+    this.resizeHeight();
+  }
+
+  private resizeWidht() {
+    const { maxWidth} = CELL_SIZE;
+    const {dimension} = this;
     let { columnAmount, perColumn } = this.getColumns(dimension);
 
 
@@ -59,10 +63,11 @@ class Grid implements StandStyle {
       i++;
     }
   }
+  private resizeHeight() {}
 
   private createBox(): Box {
     const box: Box = {
-      type: BoxType.COLUMN,
+      type: BOX_TYPE.DOOR,
       dimension: { width: 1, height: 1, depth: 1 },
       position: { x: 0, y: 0, z: 0},
       children: [],

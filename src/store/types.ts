@@ -50,7 +50,6 @@ export interface IColumnDivider {
   };
 }
 
-export type IColumnLastRow = 'door' | 'drawer' | '';
 
 export interface IColumn {
   id: string;
@@ -63,7 +62,6 @@ export interface IColumn {
   doors: IColumnDoor[];
   drawers: IColumnDrawer[];
   dividers: IColumnDivider[];
-  lastRow: IColumnLastRow;
 }
 
 export interface IPlateInformation {

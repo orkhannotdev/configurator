@@ -14,48 +14,6 @@ import { VerticalPlate } from './plates/VerticalPlate';
 import { TVStand } from '@/3D/TVStand';
 import { Gradient } from '@/3D/Styles/Gradient';
 
-
-const applyGradientStyle = (
-  columns: IColumn[], 
-  cabinetSize: ICabinetSize, 
-  cabinetLegs: ECabinetLegs
-): IColumn[] => {
-  const legHeight = getBottomHeight(cabinetLegs);
-  const { totalHeight } = cabinetSize;
-  
-  const gradientColumns = [...columns];
-  
-  gradientColumns.forEach((column) => {
-    column.lastRow = 'drawer';
-    column.doors = [];
-    
-    const availableHeight = totalHeight - legHeight - (column.rows.length + 1) * PLATE_THICKNESS;
-    const baseDrawerHeight = availableHeight / column.rows.length;
-    
-    const startPosY = legHeight + PLATE_THICKNESS;
-    
-    const drawers = column.rows.map((_, index) => {
-      const height = baseDrawerHeight;
-      
-      return {
-        index,
-        size: {
-          width: column.width,
-          height,
-        },
-        pos: {
-          x: column.posX,
-          y: startPosY + (index + 0.5) * height + index * PLATE_THICKNESS,
-        },
-      };
-    });
-    
-    column.drawers = drawers;
-  });
-  
-  return gradientColumns;
-};
-
 export const InteriorPlates = React.memo(function InteriorPlates() {
   const {
     cabinetSize,
@@ -103,25 +61,40 @@ export const InteriorPlates = React.memo(function InteriorPlates() {
 
   useEffect(() => {
       const tvStand = new TVStand();
-      console.log('cabinet styke', cabinetStyle)
       tvStand.setFromString(cabinetStyle);
       tvStand.resize({width: cabinetSize.totalWidth});
 
-      let cabinetColumns: Array<IColumn> = [];
-      const { totalHeight} = cabinetSize;
-
-      let posX = -cabinetSize.totalWidth / 2 + PLATE_THICKNESS; 
-      const legHeight = getBottomHeight(cabinetLegs);
+      const gradientColumns: IColumn[] = [];
 
       tvStand.style.boxes[0].children.forEach((child) => {
-        const columnWidth = child.dimension.width; 
-        posX += columnWidth/2;
-        cabinetColumns.push(createColumnWithLayout(child.dimension.width, posX, totalHeight, legHeight, cabinetStyle )) 
-        posX += columnWidth/2 + PLATE_THICKNESS;
+        const column: IColumn = {
+          width: child.dimension.width,
+          posX: child.position.x,
+          dividers: [],
+          doors: [],
+          drawers: [],
+          id: '123',
+          index: 1,
+          isDivide: false,
+          layoutIndex: 1,
+          rows: [],
+        };
+
+        child.children.forEach((row, index) => {
+          column.rows.push({
+            index: index,
+            size: {
+              width: row.dimension.width ,
+              height: row.dimension.height,
+            },
+            pos: {
+              x: row.position.x,
+              y: row.position.y,
+            },
+          });
+        })
       })
 
-      const gradientColumns = applyGradientStyle(cabinetColumns, cabinetSize, cabinetLegs);
-      console.log('gradientColumns', gradientColumns)
       setCabinetColumns(gradientColumns);
   }, [cabinetStyle, cabinetColumns.length, cabinetSize, cabinetLegs, setCabinetColumns]);
   

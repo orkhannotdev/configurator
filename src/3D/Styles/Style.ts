@@ -1,17 +1,18 @@
-export enum BoxType {
-  COLUMN,
-  ROW,
+export enum BOX_TYPE {
+  OPEN = 1, 
+  DOOR, 
+  DRAWER 
 }
 
 interface Box {
   dimension: { width: number; height: number; depth: number };
   position: { x: number, y: number, z: number }
-  type: BoxType;
+  type: BOX_TYPE;
   children: Array<Box>;
 }
 
 interface StandStyle {
-  boxes: Box[]; // we can change colums count. that is why every style should generate different boxes
+  boxes: Array<Box>; // we can change colums count. that is why every style should generate different boxes
   resize: (dimension: { width: number; height: number; depth: number }) => void;
 }
 
